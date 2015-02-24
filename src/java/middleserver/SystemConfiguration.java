@@ -26,7 +26,7 @@ public class SystemConfiguration {
     private Logging log = new Logging();
     //Variables for this class
     private File config = new File("config.txt");
-    protected String [] allConfig = new String[9];
+    protected String [] allConfig = new String[8];
     //Method which writes all the variables to the config file.
     protected void writeConfigFile(){
         try{
@@ -36,8 +36,8 @@ public class SystemConfiguration {
             FileWriter fw = new FileWriter(config.getAbsoluteFile(),false);
             BufferedWriter bw = new BufferedWriter(fw);
             String arrayToString="";
-            for(int i=1;i<=8;i++){
-                if(i!=8){
+            for(int i=0;i<=7;i++){
+                if(i!=7){
                     arrayToString=arrayToString+allConfig[i]+",";
                 }else{
                     arrayToString=arrayToString+allConfig[i];
@@ -67,7 +67,7 @@ public class SystemConfiguration {
         String confirm=null;
         String [] checkAllConfig = new String[7];
          try{
-             log.writeLog("starting checking configuration of database");
+             log.writeLog("starting check of database configuration");
              //checks if config filnew Timestamp(date.getTime())e exists
              if(!config.exists()){
                  confirm="file_not_avaiable";
@@ -79,7 +79,7 @@ public class SystemConfiguration {
                 checkAllConfig=checkConfigFromFile.split(",");
                 log.writeLog("Reading configuration from file into temporary variable");
                 br.close();
-                log.writeLog("Finished reading from configuration file");
+                log.writeLog("Finished reading configuration file");
                 //check if user database is avaiable
                 String host;
                 String username;
@@ -94,7 +94,7 @@ public class SystemConfiguration {
                 if(reachable){
                     conn.close();
                     checkList[0]="pass";
-                    log.writeLog("User database connection passed");
+                    log.writeLog("User database connection test passed");
                 }
              }catch (SQLException e) {
                 checkList[0]="fail";
@@ -111,7 +111,7 @@ public class SystemConfiguration {
                 if(reachable1){
                     conn1.close();
                     checkList[1]="pass";
-                    log.writeLog("Admin database connection passed");
+                    log.writeLog("Admin database connection test passed");
                 }}catch (SQLException err) {
                     checkList[1]="fail";
                     log.writeLog("Admin database conection test failed "+ err);
@@ -135,7 +135,7 @@ public class SystemConfiguration {
                 }
                 if(confirm==null){
                         confirm="passed";
-                        log.writeLog("Database test sucessful");
+                        log.writeLog("Databases test sucessful");
                     }
             }
             }catch(IOException e) {
@@ -159,31 +159,39 @@ public class SystemConfiguration {
                 Connection conn1 = DriverManager.getConnection("jdbc:derby://"+data[1], data[3], data[4]);
                 boolean reachable1 = conn1.isValid(10);// 10 sec
                 if(reachable1){
-                                log.writeLog("New User database credentials are correct");
+                                log.writeLog("New users database credentials are correct");
                                 Statement stmt = conn1.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_UPDATABLE);
                                 String SQL = "select * from "+data[2];
                                 ResultSet rs = stmt.executeQuery(SQL);
                                 boolean lastRowOfDB = rs.last();
                                 if(lastRowOfDB){
+                                        if(config.exists()){
+                                            readConfigFile();
+                                        }
                                         log.writeLog("Database is accessible, and contains records.");
-                                        for(int i=1;i<=4;i++){
-                                        this.allConfig[i]=data[i];
+                                        for(int i=0;i<=3;i++){
+                                        this.allConfig[i]=data[i+1];
                                         }
                                         writeConfigFile();
-                                        log.writeLog("User Database credentials updated");
+                                        log.writeLog("Users database credentials updated");
                                         reply="userDbTestCompleted";
                                         conn1.close();
                                 }else{
                                     if(data[0].equals("updateUserDatabaseForSure")){
-                                       for(int i=1;i<=4;i++){
-                                        this.allConfig[i]=data[i];
+                                        if(config.exists()){
+                                            readConfigFile();
+                                        }
+                                       for(int i=0;i<=3;i++){
+                                        this.allConfig[i]=data[i+1];
                                         } 
                                         writeConfigFile();
-                                        log.writeLog("User Database credentials updated, but not records avaiable into the database.");
+                                        log.writeLog("User database credentials updated, with no records available in the database.");
                                         reply="userDbTestCompleted";
+                                        conn1.close();
                                     }else{
-                                        log.writeLog("Database is accessible, but no records are avaiable, asking user if to continue");
+                                        log.writeLog("Database is accessible, but no records are avaiable, asking admin for permission to continue");
                                         reply="USER_DB_OK_NO_DATA";
+                                        conn1.close();
                                     }
                                         
                                 }
@@ -192,7 +200,7 @@ public class SystemConfiguration {
                 }
                 }catch (SQLException e) {
                     reply="user_database_error"+","+e;
-                    log.writeLog("Admin database conection test failed "+ e);
+                    log.writeLog("Admin database connection test failed "+ e);
                 }
         return reply;
     }
@@ -212,41 +220,50 @@ public class SystemConfiguration {
                 Connection conn = DriverManager.getConnection("jdbc:derby://"+data[1], data[3], data[4]);
                 boolean reachable = conn.isValid(10);// 10 sec
                 if(reachable){
-                            log.writeLog("New Admin database credentials are correct");
+                            log.writeLog("New admin database credentials are correct");
                             Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_UPDATABLE);
                             String SQL = "select * from "+data[2];
                             ResultSet rs = stmt.executeQuery(SQL);
                             boolean lastRowOfDB = rs.last();
                             if(lastRowOfDB){
-                                        log.writeLog("Admin Database is accessible, and contains records.");
-                                        this.allConfig[5]=data[1];
-                                        this.allConfig[6]=data[2];
-                                        this.allConfig[7]=data[3];
-                                        this.allConfig[8]=data[4];
+                                        if(config.exists()){
+                                            readConfigFile();
+                                        }
+                                        log.writeLog("Admin database is accessible, and contains records.");
+                                        this.allConfig[4]=data[1];
+                                        this.allConfig[5]=data[2];
+                                        this.allConfig[6]=data[3];
+                                        this.allConfig[7]=data[4];
                                         writeConfigFile();
-                                        log.writeLog("Admin Database credentials updated");
+                                        log.writeLog("Admin database credentials updated");
                                         reply="adminDbTestCompleted";
                                         conn.close();
                                 }else{
                                     if(data[0].equals("updateAdminDatabaseForSure")){
-                                        this.allConfig[5]=data[1];
-                                        this.allConfig[6]=data[2];
-                                        this.allConfig[7]=data[3];
-                                        this.allConfig[8]=data[4];
-                                        writeConfigFile();
-                                        if(data.length==6){//only used when old db is being replaced with new database which require details of new admin
-                                        AdminCheck newAdmin=new AdminCheck();
-                                        String[] newAdminArray=new String[3];
-                                        newAdminArray[0]="test";
-                                        newAdminArray[1]=data[5];
-                                        newAdminArray[2]=data[6];
-                                        newAdmin.newAdmin(newAdminArray);  
+                                        if(config.exists()){
+                                            readConfigFile();
                                         }
-                                        log.writeLog("Admin Database credentials updated, but not records avaiable into the database.");
+                                        this.allConfig[4]=data[1];
+                                        this.allConfig[5]=data[2];
+                                        this.allConfig[6]=data[3];
+                                        this.allConfig[7]=data[4];
+                                        writeConfigFile();
+                                        conn.close();
+                                        if(data.length==9){//only used when old db is being replaced with new database which require details of new admin
+                                            AdminCheck newAdmin=new AdminCheck();
+                                            String[] newAdminArray=new String[3];
+                                            newAdminArray[0]="test";
+                                            newAdminArray[1]=data[5];
+                                            newAdminArray[2]=data[6];
+                                            newAdmin.newAdmin(newAdminArray);  
+                                        }
+                                        log.writeLog("Admin database credentials updated, but not records are available in the database.");
                                         reply="adminDbTestCompleted";
+                                        
                                     }else{
-                                        log.writeLog("Database is accessible, but no records are avaiable, asking user if to continue");
+                                        log.writeLog("Database is accessible, but no records are avaiable, asking admin for permission to continue");
                                         reply="ADMIN_DB_OK_NO_DATA";
+                                        conn.close();
                                     }
                                 }
                 }else{
@@ -254,10 +271,10 @@ public class SystemConfiguration {
                 }
             }catch (SQLException e) {
                     reply="admin_database_error"+","+e;
-                    log.writeLog("Admin database conection test failed "+ e);
+                    log.writeLog("Admin database connection test failed "+ e);
                 }   
         
-        log.writeLog("User Database credentials updated");
+        log.writeLog("User database credentials updated");
         return reply;
     }
     protected String initialWriteConfigArray(String[] data){

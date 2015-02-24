@@ -262,6 +262,11 @@ public class MiddleServer {
 
                     String[] reply = login.login(splitter);
                     switch (reply[0]) {
+                        case "#*try_again_user*#":
+                            log.writeLog("Incorrect Loggin ID");
+                            serial.setRequest(reply[0]);
+                            reply(session);
+                            break;
                         case "#*try_again*#":
                             log.writeLog("Login Failed, User " + splitter[0] + " asked for password again");
                             serial.setRequest(reply[0]);
@@ -270,7 +275,7 @@ public class MiddleServer {
                             break;
                         case "#*blocked*#":
                             serial.setRequest(reply[0]);
-                            log.writeLog("Acount" + splitter[0] + "is blocked and requested login");
+                            log.writeLog("Account" + splitter[0] + "is locked and is still requesting to login");
                             reply(session);
                             break;
                         case "#*acc_blocked*#":
@@ -281,14 +286,14 @@ public class MiddleServer {
                         case "#*new_token*#":
                             serial.setRequest(reply[0]);
                             serial.setToken(reply[1]);
-                            log.writeLog("Login Succesful, User " + splitter[0] + " provided with new token");
+                            log.writeLog("Login successful , User " + splitter[0] + " provided with new token");
                             reply(session);
                             break;
                         case "#*ok*#":
                             serial.setRequest(reply[0]);
                             serial.setToken(reply[1]);
                             serial.setData(reply[1]);
-                            log.writeLog("Login Succesful, User " + splitter[0] + " provided with old token");
+                            log.writeLog("Login successful , User " + splitter[0] + " provided with old token");
                             reply(session);
                             break;
                     }
@@ -301,23 +306,23 @@ public class MiddleServer {
                     switch (check) {
                         case "#*ok*#":
                             serial.setRequest(check);
-                            log.writeLog("AutoLogin Succesful, User " + splitter[0] + " can proceed");
+                            log.writeLog("AutoLogin successful, User " + splitter[0] + " can proceed");
                             reply(session);
                             break;
                         case "#*failed*#":
                             serial.setRequest(check);
-                            log.writeLog("AutoLogin Unsuccesful, User " + splitter[0] + " needs to login manualy");
+                            log.writeLog("AutoLogin unsuccessful , User " + splitter[0] + " asked to login manually ");
                             reply(session);
                             break;
                     }
                     break;
-                case "HostAvaibility":
+                case "HostAvailability":
                     hostIP = da;
-                    log.writeLog("Checking host avaiablity " + hostIP + " from user " + confirm[0]);
+                    log.writeLog("Checking host avaiablity " + hostIP + " for user " + confirm[0]);
                     try {
                         uri = new URI("ws://" + hostIP + ":8080/LocalServer/data");
                     } catch (URISyntaxException e) {
-                        log.writeLog("URI excemption on HostAvaiblity case " + hostIP + " " + e);
+                        log.writeLog("URI exception on HostAvailability case " + hostIP + " " + e);
                     }
                     mWebSocketClient = new WebSocketClient(uri) {
                         @Override
@@ -367,7 +372,7 @@ public class MiddleServer {
                     try {
                         uri = new URI("ws://" + hostIP + ":8080/LocalServer/data");
                     } catch (URISyntaxException e) {
-                        log.writeLog("URI excemption on hostData case " + hostIP + " " + e);
+                        log.writeLog("URI exception on hostData case " + hostIP + " " + e);
                     }
                     mWebSocketClient = new WebSocketClient(uri) {
                         @Override

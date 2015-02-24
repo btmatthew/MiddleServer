@@ -27,12 +27,5 @@ protected String randomString(){
       sb.append( AB.charAt( rnd.nextInt(AB.length()) ) );
    return sb.toString();
 }
-/*protected String testUserTokens(String token){
-   int len =10;
-   StringBuilder sb = new StringBuilder( len );
-   for( int i = 0; i < len; i++ ) 
-      sb.append( token.charAt( rnd.nextInt(token.length()) ) );
-   return sb.toString();
-}*/
 }
 

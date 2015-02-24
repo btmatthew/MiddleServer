@@ -35,13 +35,13 @@ public class AdminCheck {
         String admintoken;
         String[] credentials = data;
         TokenGenAdmin token = new TokenGenAdmin();
-        log.writeLog("Admin access requested by"+" "+credentials[1]);
+        log.writeLog("Admin access requested by "+credentials[1]);
         try{
             Connection con = DriverManager.getConnection( host, username, password );
             Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_UPDATABLE);
             String SQL = "select * from "+splitter[2];
             ResultSet rs = stmt.executeQuery(SQL);
-            log.writeLog("Database query requested"+" "+SQL);
+            log.writeLog("Database query requested " + SQL);
             while(rs.next()){
                 String id = rs.getString("ADMINID");
                  if(id.equals(credentials[1])){
@@ -57,7 +57,7 @@ public class AdminCheck {
                                 rs.updateString("TOKEN", admintoken);
                                 rs.updateRow();
                                 result="pass"+","+admintoken;
-                                log.writeLog("Admin access sucess for"+" "+credentials[1]+"Fresh new token generated");
+                                log.writeLog("Admin access successful for"+" "+credentials[1]+"Fresh new token generated");
                                 rs.afterLast();
                         }else{
                             result="fail";
@@ -94,11 +94,11 @@ public class AdminCheck {
                     if(inDBtoken.equals(credentials[1])){
                         confirm="proceed"; 
                         rs.afterLast();
-                        log.writeLog("User's "+credentials[0]+" token confirm");
+                        log.writeLog("Admin "+credentials[0]+" token confirmed");
                     }else{
                         confirm="AuthFailed";
                         rs.afterLast();
-                        log.writeLog("User "+credentials[0]+" provided incorrect token");
+                        log.writeLog("Admin "+credentials[0]+" provided incorrect token");
                     }
                  }else if(!rs.next()){
                      confirm="AuthFailed";
@@ -122,7 +122,7 @@ public class AdminCheck {
             Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_UPDATABLE);
             String SQL = "select * from "+splitter[2];
             ResultSet rs = stmt.executeQuery(SQL);
-            log.writeLog("Admin's password upated");
+            log.writeLog("Admin password updated");
             while(rs.next()){
                 String id = rs.getString("ADMINID");
                 if(_data[_dataLength-2].equals(id)){
@@ -166,6 +166,7 @@ public class AdminCheck {
             rs.updateString("PASSWORD", hashed);
             rs.updateString("TOKEN", "no_token");
             rs.insertRow();
+            log.writeLog("New admin added");
             stmt.close();
             userName="UserNameAdded";
         }catch (SQLException e){

@@ -44,11 +44,11 @@ public class LoginCheck {
                     Boolean blocked = rs.getBoolean("BLOCKED"); 
                     int noOfTries = rs.getInt("TRIES");
                     if(blocked){
-                        log.writeLog("Accout"+" "+data[0]+" "+"is blocked but tried access the system");
+                        log.writeLog("Account"+" "+data[0]+" "+"is locked but tried to access the system");
                         reply[0]="#*blocked*#";
                         rs.afterLast();
                     }else if(noOfTries==9){
-                        log.writeLog("Accout"+" "+data[0]+" "+"has been marked as blocked, after trying to login 10times");
+                        log.writeLog("Accout"+" "+data[0]+" "+"has been marked as locked, after trying to login 10 times");
                         rs.updateBoolean("BLOCKED", true);
                         rs.updateRow();
                         rs.afterLast();
@@ -62,7 +62,7 @@ public class LoginCheck {
                                 log.writeLog("User login password validation error "+ ex);
                             }
                         if(checkPassword){
-                            log.writeLog("User"+" "+data[0]+" "+"logged in sucessfuly");
+                            log.writeLog("User"+" "+data[0]+" "+"logged in successfully ");
                             rs.updateInt("TRIES", 0);
                             rs.updateRow();
                             String token = rs.getString("TOKEN");
@@ -93,7 +93,7 @@ public class LoginCheck {
                     }
                 }else if(rs.isLast()){
                     log.writeLog("User"+" "+data[0]+" "+"does not exists");
-                    reply[0]="#*try_again*#";
+                    reply[0]="#*try_again_user*#";
                 }
             }
             stmt.close();
@@ -114,7 +114,7 @@ public class LoginCheck {
                 String id = rs.getString("USERID");
                 String token = rs.getString("TOKEN");
                 if(id.equals(data[0])&&token.equals(data[1])){
-                    log.writeLog("User"+" "+data[0]+" "+"AutoLogin Succeed");
+                    log.writeLog("User"+" "+data[0]+" "+"AutoLogin successfull");
                     reply="#*ok*#";
                     rs.afterLast();
                     check=true;
@@ -122,7 +122,7 @@ public class LoginCheck {
         }
             stmt.close();
             if(check==false){
-                log.writeLog("User"+" "+data[0]+" "+"AutoLogin Failed");
+                log.writeLog("User"+" "+data[0]+" "+"AutoLogin failed");
                     reply="#*failed*#";
             }
             
@@ -162,7 +162,7 @@ public class LoginCheck {
      public String userUpdate(String[] data){
          String[] userUpdate = data;
          String userUpdateResult =null;
-         log.writeLog("User details change requested, for user"+" "+userUpdate[1]);
+         log.writeLog("User details change requested for user"+" "+userUpdate[1]);
           try{
             Connection con = DriverManager.getConnection( host, username, password );
             Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_UPDATABLE);
@@ -185,8 +185,7 @@ public class LoginCheck {
                     }else{
                         String hashed=null;
                         try{
-                            hashed =hash.createHash(userUpdate[2]);  
-                            System.out.println("Hash "+hashed);
+                            hashed =hash.createHash(userUpdate[2]);
                         }catch(Exception ex){
                             log.writeLog(" "+ ex);
                         }
@@ -225,7 +224,7 @@ public class LoginCheck {
             try{
               hashed =hash.createHash(newUser[2]); 
             }catch(NoSuchAlgorithmException | InvalidKeySpecException e){
-                log.writeLog("Error when Hashing password for user "+ newUser[1] +" "+ e);
+                log.writeLog("Error when hashing password for user "+ newUser[1] +" "+ e);
             }
             rs.updateString("PASSW0RD",hashed);
             rs.updateInt("TRIES", 0);
@@ -287,7 +286,7 @@ public class LoginCheck {
             reply=reply+size;
             log.writeLog("Details of the all users were provided to admin.");
             }catch (SQLException e) {
-             log.writeLog("Error when providing all the details to the admin "+e);
+             log.writeLog("Error when providing all the user details to the admin "+e);
         }
          
          return reply;
